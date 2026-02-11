@@ -152,7 +152,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <SetupForm
-              initialIds={playerIds}
+              initialIds={showSetup ? null : playerIds}
               onSave={(ids) => {
                 save(ids);
                 setShowSetup(false);
