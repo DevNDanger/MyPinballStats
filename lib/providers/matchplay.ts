@@ -184,17 +184,25 @@ export async function getRecentOpponents(
     for (const game of games) {
       if (game.status !== 'completed' || game.bye) continue;
 
-      const ourPosIdx = game.resultPositions.indexOf(ourPlayerId);
-      if (ourPosIdx === -1) continue; // We weren't in this game
+      // playerIds and resultPositions are parallel arrays:
+      //   playerIds[i] finished in position resultPositions[i]
+      //   (lower position number = higher finish, e.g. 1 = 1st place)
+      const ourIdx = game.playerIds.indexOf(ourPlayerId);
+      if (ourIdx === -1) continue; // We weren't in this game
+
+      const ourPos = game.resultPositions[ourIdx];
+      if (!ourPos) continue; // No result recorded
 
       // Determine the game date (use game.startedAt if available, else tournament start)
       const gameDate = game.startedAt || startUtc || '';
 
-      // Compare our position against every other player in the game
-      for (let i = 0; i < game.resultPositions.length; i++) {
-        if (i === ourPosIdx) continue;
-        const oppId = game.resultPositions[i];
+      // Compare our finishing position against every other player in the game
+      for (let i = 0; i < game.playerIds.length; i++) {
+        if (i === ourIdx) continue;
+        const oppId = game.playerIds[i];
         const oppName = nameOf.get(oppId) || `Player ${oppId}`;
+        const oppPos = game.resultPositions[i];
+        if (!oppPos) continue; // No result for this opponent
 
         const rec = opponentMap.get(oppName) ?? {
           wins: 0,
@@ -202,9 +210,9 @@ export async function getRecentOpponents(
           lastPlayed: '',
         };
 
-        // Lower index in resultPositions = higher finish
-        if (ourPosIdx < i) rec.wins++;
-        else rec.losses++;
+        // Lower position number = better finish (1st beats 2nd)
+        if (ourPos < oppPos) rec.wins++;
+        else if (ourPos > oppPos) rec.losses++;
 
         // Track most recent encounter
         if (gameDate > rec.lastPlayed) rec.lastPlayed = gameDate;
