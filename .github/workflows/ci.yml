@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run ESLint
+      run: npm run lint
+
+    - name: Run TypeScript type check
+      run: npm run typecheck
+
+    - name: Build application
+      run: npm run build
+      env:
+        IFPA_API_KEY: test_key_for_build
+        MATCHPLAY_API_TOKEN: test_token_for_build
+        DEFAULT_IFPA_PLAYER_ID: 67715
+        DEFAULT_MATCHPLAY_PLAYER_ID: 37737

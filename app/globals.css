@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Righteous&family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+  --st-black: #0b0c10;
+  --st-dark: #121318;
+  --st-card: #1a1b24;
+  --st-red: #e63946;
+  --st-neon-red: #ff1744;
+  --st-orange: #ff6b35;
+  --st-yellow: #ffd166;
+  --st-text: #e8e6e3;
+  --st-muted: #8a8a9a;
+  --st-border: #2a2b3a;
+  --st-glow: 0 0 20px rgba(230, 57, 70, 0.3), 0 0 60px rgba(230, 57, 70, 0.1);
+}
+
+body {
+  color: var(--st-text);
+  background: var(--st-black);
+  font-family: 'Orbitron', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Stranger Things inspired background */
+.st-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(230, 57, 70, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 0%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(230, 57, 70, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #0b0c10 0%, #121318 40%, #0b0c10 100%);
+  background-size: cover;
+}
+
+/* Floating particles effect */
+.st-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255, 107, 53, 0.4), transparent),
+    radial-gradient(1px 1px at 30% 40%, rgba(230, 57, 70, 0.3), transparent),
+    radial-gradient(1px 1px at 50% 10%, rgba(255, 209, 102, 0.3), transparent),
+    radial-gradient(1px 1px at 70% 60%, rgba(230, 57, 70, 0.4), transparent),
+    radial-gradient(1px 1px at 90% 30%, rgba(255, 107, 53, 0.3), transparent),
+    radial-gradient(1.5px 1.5px at 15% 80%, rgba(255, 209, 102, 0.2), transparent),
+    radial-gradient(1.5px 1.5px at 85% 85%, rgba(230, 57, 70, 0.3), transparent),
+    radial-gradient(1px 1px at 45% 55%, rgba(255, 107, 53, 0.2), transparent);
+  animation: twinkle 8s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Neon glow title */
+.st-title {
+  font-family: 'Righteous', 'Orbitron', sans-serif;
+  color: var(--st-red);
+  text-shadow:
+    0 0 7px var(--st-neon-red),
+    0 0 20px var(--st-neon-red),
+    0 0 42px rgba(255, 23, 68, 0.5),
+    0 0 82px rgba(255, 23, 68, 0.3);
+  letter-spacing: 2px;
+}
+
+/* Card styling */
+.st-card {
+  background: var(--st-card);
+  border: 1px solid var(--st-border);
+  border-radius: 12px;
+  box-shadow: var(--st-glow);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.st-card:hover {
+  border-color: rgba(230, 57, 70, 0.4);
+  box-shadow: 0 0 30px rgba(230, 57, 70, 0.4), 0 0 80px rgba(230, 57, 70, 0.15);
+}
+
+/* Grade badge */
+.st-grade {
+  font-family: 'Righteous', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 1.75rem;
+  font-weight: 900;
+  border: 3px solid;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.st-grade-a-plus { color: #ffd700; border-color: #ffd700; background: rgba(255, 215, 0, 0.1); }
+.st-grade-a { color: #ff6b35; border-color: #ff6b35; background: rgba(255, 107, 53, 0.1); }
+.st-grade-b { color: #e63946; border-color: #e63946; background: rgba(230, 57, 70, 0.1); }
+.st-grade-c { color: #8a8a9a; border-color: #8a8a9a; background: rgba(138, 138, 154, 0.1); }
+.st-grade-d { color: #555566; border-color: #555566; background: rgba(85, 85, 102, 0.1); }
+
+/* Neon button */
+.st-button {
+  background: transparent;
+  color: var(--st-red);
+  border: 2px solid var(--st-red);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(230, 57, 70, 0.3), inset 0 0 10px rgba(230, 57, 70, 0.1);
+}
+
+.st-button:hover {
+  background: rgba(230, 57, 70, 0.15);
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.5), inset 0 0 20px rgba(230, 57, 70, 0.2);
+}
+
+.st-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Stat row */
+.st-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(42, 43, 58, 0.6);
+}
+
+.st-stat-row:last-child {
+  border-bottom: none;
+}
+
+.st-stat-label {
+  color: var(--st-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.st-stat-value {
+  color: var(--st-text);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Year table */
+.st-year-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.st-year-table th {
+  color: var(--st-orange);
+  font-weight: 700;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 2px solid var(--st-border);
+  letter-spacing: 0.5px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.st-year-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(42, 43, 58, 0.4);
+  color: var(--st-text);
+}
+
+.st-year-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Section header style */
+.st-section-header {
+  color: var(--st-orange);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
