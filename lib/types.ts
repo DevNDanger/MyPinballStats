@@ -47,10 +47,11 @@ export interface IFPAPlayer {
   age?: number;
   ifpa_registered?: boolean;
   profile_photo?: string;
+  /** Cross-linked Match Play data — IFPA API returns these as strings */
   matchplay_events?: {
-    id?: number;
-    rating?: number;
-    rank?: number;
+    id?: string | number;
+    rating?: string | number;
+    rank?: string | number | null;
   };
   player_stats?: {
     system?: Record<string, IFPAPlayerStats>;

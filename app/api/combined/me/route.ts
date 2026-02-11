@@ -23,8 +23,9 @@ async function resolvePlayerIds(
     // User entered IFPA only — look up linked Match Play ID
     try {
       const player = await getPlayerProfile(ifpaId);
-      const linkedMpId = player.matchplay_events?.id;
-      if (linkedMpId) {
+      // IFPA API returns matchplay_events.id as a string — parse to number
+      const linkedMpId = Number(player.matchplay_events?.id);
+      if (linkedMpId && !isNaN(linkedMpId)) {
         matchPlayId = linkedMpId;
       }
     } catch {
@@ -34,8 +35,8 @@ async function resolvePlayerIds(
     // User entered Match Play only — look up linked IFPA ID
     try {
       const profile = await getUserProfile(matchPlayId);
-      const linkedIfpaId = profile.user.ifpaId;
-      if (linkedIfpaId) {
+      const linkedIfpaId = Number(profile.user.ifpaId);
+      if (linkedIfpaId && !isNaN(linkedIfpaId)) {
         ifpaId = linkedIfpaId;
       }
     } catch {
@@ -45,8 +46,8 @@ async function resolvePlayerIds(
     // Both entered — verify they are actually linked
     try {
       const player = await getPlayerProfile(ifpaId);
-      const linkedMpId = player.matchplay_events?.id;
-      if (linkedMpId && linkedMpId !== matchPlayId) {
+      const linkedMpId = Number(player.matchplay_events?.id);
+      if (linkedMpId && !isNaN(linkedMpId) && linkedMpId !== matchPlayId) {
         idMismatchWarning = `Your IFPA account is linked to Match Play ID ${linkedMpId}, but you entered ${matchPlayId}. The data shown may be for different players.`;
       }
     } catch {
