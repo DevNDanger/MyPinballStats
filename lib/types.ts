@@ -47,6 +47,11 @@ export interface IFPAPlayer {
   age?: number;
   ifpa_registered?: boolean;
   profile_photo?: string;
+  matchplay_events?: {
+    id?: number;
+    rating?: number;
+    rank?: number;
+  };
   player_stats?: {
     system?: Record<string, IFPAPlayerStats>;
   };
@@ -200,7 +205,7 @@ export interface DashboardData {
   } | null;
   recentOpponents?: RecentOpponent[];
   recentOpponentsError?: string;
-  nameMismatchWarning?: string;
+  idMismatchWarning?: string;
   lastUpdated: string;
 }
 

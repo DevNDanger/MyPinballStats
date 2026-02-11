@@ -1,11 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPlayerData } from '@/lib/providers/ifpa';
-import { getUserSummary, getRecentOpponents } from '@/lib/providers/matchplay';
+import { getPlayerData, getPlayerProfile } from '@/lib/providers/ifpa';
+import { getUserSummary, getUserProfile, getRecentOpponents } from '@/lib/providers/matchplay';
 import { cache, TTL, RATE_LIMIT } from '@/lib/cache';
-import { createApiResponse, createErrorResponse, getEnvVar } from '@/lib/http';
+import { createApiResponse, createErrorResponse } from '@/lib/http';
 import { DashboardData } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * Resolve both IFPA and Match Play IDs from a single input.
+ * Uses cross-linked IDs from each provider's API.
+ */
+async function resolvePlayerIds(
+  rawIfpaId: string | null,
+  rawMatchPlayId: string | null
+): Promise<{ ifpaId: number | null; matchPlayId: number | null; idMismatchWarning?: string }> {
+  let ifpaId = rawIfpaId ? parseInt(rawIfpaId, 10) : null;
+  let matchPlayId = rawMatchPlayId ? parseInt(rawMatchPlayId, 10) : null;
+  let idMismatchWarning: string | undefined;
+
+  if (ifpaId && !matchPlayId) {
+    // User entered IFPA only — look up linked Match Play ID
+    try {
+      const player = await getPlayerProfile(ifpaId);
+      const linkedMpId = player.matchplay_events?.id;
+      if (linkedMpId) {
+        matchPlayId = linkedMpId;
+      }
+    } catch {
+      // IFPA profile fetch failed — continue with IFPA ID only
+    }
+  } else if (matchPlayId && !ifpaId) {
+    // User entered Match Play only — look up linked IFPA ID
+    try {
+      const profile = await getUserProfile(matchPlayId);
+      const linkedIfpaId = profile.user.ifpaId;
+      if (linkedIfpaId) {
+        ifpaId = linkedIfpaId;
+      }
+    } catch {
+      // Match Play profile fetch failed — continue with MP ID only
+    }
+  } else if (ifpaId && matchPlayId) {
+    // Both entered — verify they are actually linked
+    try {
+      const player = await getPlayerProfile(ifpaId);
+      const linkedMpId = player.matchplay_events?.id;
+      if (linkedMpId && linkedMpId !== matchPlayId) {
+        idMismatchWarning = `Your IFPA account is linked to Match Play ID ${linkedMpId}, but you entered ${matchPlayId}. The data shown may be for different players.`;
+      }
+    } catch {
+      // Could not verify — skip warning
+    }
+  }
+
+  return { ifpaId, matchPlayId, idMismatchWarning };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,11 +74,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const ifpaPlayerId = rawIfpaId ? parseInt(rawIfpaId, 10) : null;
-    const matchPlayUserId = rawMatchPlayId ? parseInt(rawMatchPlayId, 10) : null;
-
-    if ((rawIfpaId && (ifpaPlayerId === null || isNaN(ifpaPlayerId))) ||
-        (rawMatchPlayId && (matchPlayUserId === null || isNaN(matchPlayUserId)))) {
+    // Validate numeric format before resolving
+    if ((rawIfpaId && isNaN(parseInt(rawIfpaId, 10))) ||
+        (rawMatchPlayId && isNaN(parseInt(rawMatchPlayId, 10)))) {
       return NextResponse.json(
         createErrorResponse(null, 'Invalid player IDs'),
         { status: 400 }
@@ -46,6 +94,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Resolve both IDs via cross-linking
+    const { ifpaId: ifpaPlayerId, matchPlayId: matchPlayUserId, idMismatchWarning } =
+      await resolvePlayerIds(rawIfpaId, rawMatchPlayId);
+
     // Check cache unless refresh is requested
     const cacheKey = `combined:${ifpaPlayerId ?? 'none'}:${matchPlayUserId ?? 'none'}`;
     if (!bypassCache) {
@@ -55,7 +107,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fetch data only from providers whose IDs were supplied
+    // Fetch data only from providers whose IDs were resolved
     const [ifpaData, matchPlayData, opponentsData] = await Promise.allSettled([
       ifpaPlayerId ? getPlayerData(ifpaPlayerId) : Promise.reject('No IFPA ID'),
       matchPlayUserId ? getUserSummary(matchPlayUserId) : Promise.reject('No Match Play ID'),
@@ -99,24 +151,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Combine identity information
-    const ifpaName = ifpaData.status === 'fulfilled'
-      ? `${ifpaData.value.player.first_name} ${ifpaData.value.player.last_name}`.trim()
-      : null;
-    const matchPlayName = matchPlayData.status === 'fulfilled'
-      ? matchPlayData.value.user.name?.trim() ?? null
-      : null;
-
-    // Detect name mismatch when both providers returned data
-    let nameMismatchWarning: string | undefined;
-    if (ifpaName && matchPlayName) {
-      const normalize = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '');
-      if (normalize(ifpaName) !== normalize(matchPlayName)) {
-        nameMismatchWarning = `IFPA name "${ifpaName}" does not match Match Play name "${matchPlayName}". Make sure both IDs belong to the same player.`;
-      }
-    }
-
     const identity = {
-      name: ifpaName ?? matchPlayName ?? 'Unknown Player',
+      name:
+        ifpaData.status === 'fulfilled'
+          ? `${ifpaData.value.player.first_name} ${ifpaData.value.player.last_name}`.trim()
+          : matchPlayData.status === 'fulfilled'
+          ? matchPlayData.value.user.name?.trim() ?? 'Unknown Player'
+          : 'Unknown Player',
       location:
         ifpaData.status === 'fulfilled'
           ? [ifpaData.value.player.city, ifpaData.value.player.stateprov]
@@ -148,7 +189,7 @@ export async function GET(request: NextRequest) {
       matchplay: matchPlayResult,
       recentOpponents,
       recentOpponentsError: opponentsError,
-      nameMismatchWarning,
+      idMismatchWarning,
       lastUpdated: new Date().toISOString(),
     };
 

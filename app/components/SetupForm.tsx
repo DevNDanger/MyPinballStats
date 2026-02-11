@@ -9,99 +9,102 @@ interface SetupFormProps {
   onCancel?: () => void;
 }
 
+type IdSource = 'ifpa' | 'matchplay';
+
 export default function SetupForm({ initialIds, onSave, onCancel }: SetupFormProps) {
-  const [ifpaId, setIfpaId] = useState(initialIds?.ifpaId ?? '');
-  const [matchPlayId, setMatchPlayId] = useState(initialIds?.matchPlayId ?? '');
+  const [source, setSource] = useState<IdSource>('ifpa');
+  const [playerId, setPlayerId] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const trimmedIfpa = ifpaId.trim();
-    const trimmedMP = matchPlayId.trim();
+    const trimmed = playerId.trim();
 
-    if (!trimmedIfpa && !trimmedMP) {
-      setError('Please enter at least one player ID.');
+    if (!trimmed) {
+      setError('Please enter your player ID.');
       return;
     }
 
-    // Validate that entered values are numeric
-    if (trimmedIfpa && !/^\d+$/.test(trimmedIfpa)) {
-      setError('IFPA ID must be a number.');
-      return;
-    }
-    if (trimmedMP && !/^\d+$/.test(trimmedMP)) {
-      setError('Match Play ID must be a number.');
+    if (!/^\d+$/.test(trimmed)) {
+      setError('Player ID must be a number.');
       return;
     }
 
-    onSave({ ifpaId: trimmedIfpa, matchPlayId: trimmedMP });
+    // Pass whichever ID the user entered; the API will auto-discover the other
+    onSave({
+      ifpaId: source === 'ifpa' ? trimmed : '',
+      matchPlayId: source === 'matchplay' ? trimmed : '',
+    });
   };
 
   return (
     <div className="st-card p-8 max-w-md mx-auto">
       <h2 className="text-lg font-bold mb-2 st-section-header text-center">
-        {onCancel ? 'Update Player IDs' : 'Welcome'}
+        {onCancel ? 'Change Player' : 'Welcome'}
       </h2>
       <p className="text-[var(--st-muted)] text-xs text-center mb-6 tracking-wider">
-        Enter your player IDs to load your stats. You need at least one.
+        Enter either your IFPA or Match Play ID — we&apos;ll find the rest automatically.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* IFPA ID */}
-        <div>
-          <label
-            htmlFor="ifpaId"
-            className="block text-xs text-[var(--st-muted)] mb-1 tracking-wider uppercase"
+        {/* Source toggle */}
+        <div className="flex rounded-lg overflow-hidden border border-[var(--st-border)]">
+          <button
+            type="button"
+            onClick={() => { setSource('ifpa'); setError(null); }}
+            className={`flex-1 py-2 text-xs font-bold tracking-wider uppercase transition-all ${
+              source === 'ifpa'
+                ? 'bg-[var(--st-red)] text-white'
+                : 'bg-transparent text-[var(--st-muted)] hover:text-[var(--st-text)]'
+            }`}
           >
-            IFPA Player ID
-          </label>
-          <input
-            id="ifpaId"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            placeholder="e.g. 12345"
-            value={ifpaId}
-            onChange={(e) => setIfpaId(e.target.value)}
-            className="st-input w-full"
-          />
-          <a
-            href="https://www.ifpapinball.com/players/find.php"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] text-[var(--st-orange)] hover:underline mt-1 inline-block"
+            IFPA ID
+          </button>
+          <button
+            type="button"
+            onClick={() => { setSource('matchplay'); setError(null); }}
+            className={`flex-1 py-2 text-xs font-bold tracking-wider uppercase transition-all ${
+              source === 'matchplay'
+                ? 'bg-[var(--st-red)] text-white'
+                : 'bg-transparent text-[var(--st-muted)] hover:text-[var(--st-text)]'
+            }`}
           >
-            Find your IFPA ID →
-          </a>
+            Match Play ID
+          </button>
         </div>
 
-        {/* Match Play ID */}
+        {/* Single ID input */}
         <div>
           <label
-            htmlFor="matchPlayId"
+            htmlFor="playerId"
             className="block text-xs text-[var(--st-muted)] mb-1 tracking-wider uppercase"
           >
-            Match Play User ID
+            {source === 'ifpa' ? 'IFPA Player ID' : 'Match Play User ID'}
           </label>
           <input
-            id="matchPlayId"
+            id="playerId"
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            placeholder="e.g. 54321"
-            value={matchPlayId}
-            onChange={(e) => setMatchPlayId(e.target.value)}
+            placeholder={source === 'ifpa' ? 'e.g. 12345' : 'e.g. 54321'}
+            value={playerId}
+            onChange={(e) => setPlayerId(e.target.value)}
             className="st-input w-full"
+            autoFocus
           />
           <a
-            href="https://app.matchplay.events"
+            href={
+              source === 'ifpa'
+                ? 'https://www.ifpapinball.com/players/find.php'
+                : 'https://app.matchplay.events'
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="text-[10px] text-[var(--st-orange)] hover:underline mt-1 inline-block"
           >
-            Find your Match Play ID →
+            {source === 'ifpa' ? 'Find your IFPA ID →' : 'Find your Match Play ID →'}
           </a>
         </div>
 

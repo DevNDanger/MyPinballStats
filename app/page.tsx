@@ -202,20 +202,20 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          {/* Name mismatch warning */}
-          {data?.nameMismatchWarning && (
+          {/* ID mismatch warning */}
+          {data?.idMismatchWarning && (
             <div className="mb-6 p-4 rounded-lg border-2 border-[var(--st-orange)] bg-[rgba(255,107,53,0.1)] text-center">
               <div className="text-[var(--st-orange)] text-xs font-bold tracking-wider uppercase mb-1">
                 Player Mismatch Detected
               </div>
               <div className="text-[var(--st-text)] text-xs">
-                {data.nameMismatchWarning}
+                {data.idMismatchWarning}
               </div>
               <button
                 onClick={() => setShowSetup(true)}
                 className="mt-3 text-[var(--st-orange)] text-xs underline hover:text-[var(--st-red)] transition-colors"
               >
-                Fix Player IDs
+                Fix Player ID
               </button>
             </div>
           )}
