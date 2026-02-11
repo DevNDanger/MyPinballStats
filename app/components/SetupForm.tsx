@@ -62,7 +62,7 @@ export default function SetupForm({ initialIds, onSave, onCancel }: SetupFormPro
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            placeholder="e.g. 67715"
+            placeholder="e.g. 12345"
             value={ifpaId}
             onChange={(e) => setIfpaId(e.target.value)}
             className="st-input w-full"
@@ -90,7 +90,7 @@ export default function SetupForm({ initialIds, onSave, onCancel }: SetupFormPro
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            placeholder="e.g. 37737"
+            placeholder="e.g. 54321"
             value={matchPlayId}
             onChange={(e) => setMatchPlayId(e.target.value)}
             className="st-input w-full"
