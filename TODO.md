@@ -7,10 +7,10 @@
 ## 🔴 Priority 1 — Branding & Launch
 
 - [x] **1.1** Rename the app to "My Pinball Stats" everywhere (package.json, layout.tsx title/meta, page.tsx header, README, repo name, etc.)
-- [ ] **1.2** Rename the GitHub repository from `Pinball-Dash` → `MyPinballStats` (or similar)
+- [x] **1.2** Rename the GitHub repository from `Pinball-Dash` → `MyPinballStats` (or similar)
 - [x] **1.3** Update the page header/title in the UI to "My Pinball Stats" (remove profanity from title & heading)
-- [ ] **1.4** Connect the repository to the Vercel account for automated deployments
-- [ ] **1.5** Point the custom domain `www.mypinballstats.com` to Vercel (DNS config + Vercel domain settings)
+- [x] **1.4** Connect the repository to the Vercel account for automated deployments
+- [x] **1.5** Point the custom domain `www.mypinballstats.com` to Vercel (DNS config + Vercel domain settings)
 
 ---
 
