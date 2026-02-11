@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DashboardData } from '@/lib/types';
+import { usePlayerIds } from '@/lib/hooks/usePlayerIds';
+import SetupForm from '@/app/components/SetupForm';
 
 interface CardProps {
   title: string;
@@ -72,18 +74,27 @@ function formatPercent(value: number | null | undefined) {
 }
 
 export default function DashboardPage() {
+  const { playerIds, isReady, isConfigured, save, clear } = usePlayerIds();
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
 
-  const fetchData = async (refresh = false) => {
+  const fetchData = useCallback(async (refresh = false) => {
+    if (!playerIds) return;
+
     try {
       setIsLoading(!refresh);
       setIsRefreshing(refresh);
       setError(null);
 
-      const url = `/api/combined/me${refresh ? '?refresh=true' : ''}`;
+      const params = new URLSearchParams();
+      if (playerIds.ifpaId) params.set('ifpaId', playerIds.ifpaId);
+      if (playerIds.matchPlayId) params.set('matchPlayId', playerIds.matchPlayId);
+      if (refresh) params.set('refresh', 'true');
+
+      const url = `/api/combined/me?${params.toString()}`;
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -103,11 +114,57 @@ export default function DashboardPage() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, [playerIds]);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (isReady && isConfigured) {
+      fetchData();
+    } else if (isReady) {
+      setIsLoading(false);
+    }
+  }, [isReady, isConfigured, fetchData]);
+
+  // Still hydrating — show nothing
+  if (!isReady) {
+    return (
+      <>
+        <div className="st-background" />
+        <main className="relative min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[var(--st-red)]" />
+        </main>
+      </>
+    );
+  }
+
+  // No IDs configured yet, or user clicked "Change Player"
+  if (!isConfigured || showSetup) {
+    return (
+      <>
+        <div className="st-background" />
+        <main className="relative min-h-screen py-16 px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="mb-10 text-center">
+              <h1 className="st-title text-3xl sm:text-4xl mb-3">
+                My Pinball Stats
+              </h1>
+              <p className="text-[var(--st-muted)] text-xs tracking-widest uppercase mt-2">
+                Enter your player IDs to get started
+              </p>
+            </div>
+            <SetupForm
+              initialIds={playerIds}
+              onSave={(ids) => {
+                save(ids);
+                setShowSetup(false);
+                setData(null);
+              }}
+              onCancel={isConfigured ? () => setShowSetup(false) : undefined}
+            />
+          </div>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
@@ -128,8 +185,14 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Refresh Button */}
-          <div className="mb-8 flex justify-center">
+          {/* Actions */}
+          <div className="mb-8 flex justify-center gap-3">
+            <button
+              onClick={() => setShowSetup(true)}
+              className="st-button py-2 px-6 rounded-lg text-sm !border-[var(--st-orange)] !text-[var(--st-orange)] !shadow-none hover:!bg-[rgba(255,107,53,0.15)]"
+            >
+              Change Player
+            </button>
             <button
               onClick={() => fetchData(true)}
               disabled={isRefreshing || isLoading}

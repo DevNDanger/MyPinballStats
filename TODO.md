@@ -16,11 +16,11 @@
 
 ## 🟠 Priority 2 — New Features (User-Requested)
 
-- [ ] **2.1** Build a multi-user architecture — allow any player to enter their own Match Play #, IFPA #, and SternIC ID
-- [ ] **2.2** Persist player IDs across visits (login system, or local storage + optional account)
-- [ ] **2.3** Create a login/signup page (evaluate options: OAuth, email/password, magic links)
-- [ ] **2.4** Ensure any PII and auth flows are secure (HTTPS-only, hashed passwords or token-based auth, encrypted storage)
-- [ ] **2.5** Add backend analytics — user counts, page hits, usage stats (consider Vercel Analytics, PostHog, or Plausible)
+- [x] **2.1** Build a multi-user architecture — allow any player to enter their own Match Play #, IFPA #, and SternIC ID
+- [x] **2.2** Persist player IDs across visits (localStorage-based; full auth deferred to later phase)
+- [ ] **2.3** Create a login/signup page (evaluate options: OAuth, email/password, magic links)  *(deferred — Phase B)*
+- [ ] **2.4** Ensure any PII and auth flows are secure (HTTPS-only, hashed passwords or token-based auth, encrypted storage)  *(deferred — Phase B)*
+- [x] **2.5** Add backend analytics — user counts, page hits, usage stats (Vercel Analytics installed)
 
 ---
 
