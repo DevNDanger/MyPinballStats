@@ -16,13 +16,11 @@
 
 ## 🟠 Priority 2 — New Features (User-Requested)
 
-- [ ] **2.1** Create a connection/provider for the Stern Insider Connected (SternIC) API
-- [ ] **2.2** Add a SternIC stats & badges section to the dashboard
-- [ ] **2.3** Build a multi-user architecture — allow any player to enter their own Match Play #, IFPA #, and SternIC ID
-- [ ] **2.4** Persist player IDs across visits (login system, or local storage + optional account)
-- [ ] **2.5** Create a login/signup page (evaluate options: OAuth, email/password, magic links)
-- [ ] **2.6** Ensure any PII and auth flows are secure (HTTPS-only, hashed passwords or token-based auth, encrypted storage)
-- [ ] **2.7** Add backend analytics — user counts, page hits, usage stats (consider Vercel Analytics, PostHog, or Plausible)
+- [ ] **2.1** Build a multi-user architecture — allow any player to enter their own Match Play #, IFPA #, and SternIC ID
+- [ ] **2.2** Persist player IDs across visits (login system, or local storage + optional account)
+- [ ] **2.3** Create a login/signup page (evaluate options: OAuth, email/password, magic links)
+- [ ] **2.4** Ensure any PII and auth flows are secure (HTTPS-only, hashed passwords or token-based auth, encrypted storage)
+- [ ] **2.5** Add backend analytics — user counts, page hits, usage stats (consider Vercel Analytics, PostHog, or Plausible)
 
 ---
 
@@ -104,6 +102,8 @@
 - [ ] **8.7** Update dependencies — Next.js 14→15, React 18→19, ESLint 8→9, TypeScript 5.3→5.7+
 - [ ] **8.8** Add a custom 404 page (`not-found.tsx`)
 - [ ] **8.9** Add an error boundary (`error.tsx`) for graceful crash recovery
+- [ ] **8.10** Create a connection/provider for the Stern Insider Connected (SternIC) API _(deferred — no public API available yet)_
+- [ ] **8.11** Add a SternIC stats & badges section to the dashboard _(deferred — no public API available yet)_
 
 ---
 
