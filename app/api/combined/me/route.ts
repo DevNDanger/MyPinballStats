@@ -12,20 +12,23 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const bypassCache = searchParams.get('refresh') === 'true';
 
-    // Get IDs from query or environment defaults
-    const defaultIfpaId = getEnvVar('DEFAULT_IFPA_PLAYER_ID', '67715');
-    const defaultMatchPlayId = getEnvVar('DEFAULT_MATCHPLAY_PLAYER_ID', '37737');
-    
-    const ifpaPlayerId = parseInt(
-      searchParams.get('ifpaId') || defaultIfpaId,
-      10
-    );
-    const matchPlayUserId = parseInt(
-      searchParams.get('matchPlayId') || defaultMatchPlayId,
-      10
-    );
+    // Get IDs from query params — no fallback to defaults
+    const rawIfpaId = searchParams.get('ifpaId');
+    const rawMatchPlayId = searchParams.get('matchPlayId');
 
-    if (isNaN(ifpaPlayerId) || isNaN(matchPlayUserId)) {
+    // At least one ID must be provided
+    if (!rawIfpaId && !rawMatchPlayId) {
+      return NextResponse.json(
+        createErrorResponse(null, 'At least one player ID is required'),
+        { status: 400 }
+      );
+    }
+
+    const ifpaPlayerId = rawIfpaId ? parseInt(rawIfpaId, 10) : null;
+    const matchPlayUserId = rawMatchPlayId ? parseInt(rawMatchPlayId, 10) : null;
+
+    if ((rawIfpaId && (ifpaPlayerId === null || isNaN(ifpaPlayerId))) ||
+        (rawMatchPlayId && (matchPlayUserId === null || isNaN(matchPlayUserId)))) {
       return NextResponse.json(
         createErrorResponse(null, 'Invalid player IDs'),
         { status: 400 }
@@ -44,7 +47,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check cache unless refresh is requested
-    const cacheKey = `combined:${ifpaPlayerId}:${matchPlayUserId}`;
+    const cacheKey = `combined:${ifpaPlayerId ?? 'none'}:${matchPlayUserId ?? 'none'}`;
     if (!bypassCache) {
       const cachedData = cache.get<DashboardData>(cacheKey);
       if (cachedData) {
@@ -52,11 +55,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fetch data from both sources in parallel
+    // Fetch data only from providers whose IDs were supplied
     const [ifpaData, matchPlayData, opponentsData] = await Promise.allSettled([
-      getPlayerData(ifpaPlayerId),
-      getUserSummary(matchPlayUserId),
-      getRecentOpponents(matchPlayUserId),
+      ifpaPlayerId ? getPlayerData(ifpaPlayerId) : Promise.reject('No IFPA ID'),
+      matchPlayUserId ? getUserSummary(matchPlayUserId) : Promise.reject('No Match Play ID'),
+      matchPlayUserId ? getRecentOpponents(matchPlayUserId) : Promise.reject('No Match Play ID'),
     ]);
 
     // Process IFPA data
@@ -111,8 +114,8 @@ export async function GET(request: NextRequest) {
           : matchPlayData.status === 'fulfilled'
           ? matchPlayData.value.user.location
           : undefined,
-      ifpa_id: ifpaPlayerId,
-      matchplay_id: matchPlayUserId,
+      ifpa_id: ifpaPlayerId ?? undefined,
+      matchplay_id: matchPlayUserId ?? undefined,
     };
 
     // Process opponents data — log errors for debugging
@@ -120,7 +123,8 @@ export async function GET(request: NextRequest) {
     let opponentsError: string | undefined;
     if (opponentsData.status === 'fulfilled') {
       recentOpponents = opponentsData.value;
-    } else {
+    } else if (matchPlayUserId) {
+      // Only report as error if we actually tried to fetch
       const reason = opponentsData.reason;
       opponentsError =
         reason instanceof Error ? reason.message : String(reason);
