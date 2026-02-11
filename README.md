@@ -1,6 +1,6 @@
-# Pinball Stats Dashboard
+# My Pinball Stats
 
-A mobile-first personal pinball statistics dashboard that pulls data from IFPA (International Flipper Pinball Association) and Match Play Events APIs. Built with Next.js, TypeScript, and Tailwind CSS.
+A mobile-first personal pinball statistics dashboard that pulls data from IFPA (International Flipper Pinball Association), Match Play Events, and Stern Insider Connected APIs. Built with Next.js, TypeScript, and Tailwind CSS.
 
 ## Features
 
@@ -32,8 +32,8 @@ A mobile-first personal pinball statistics dashboard that pulls data from IFPA (
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/PinballStats.git
-cd PinballStats
+git clone https://github.com/YOUR_USERNAME/MyPinballStats.git
+cd MyPinballStats
 ```
 
 ### 2. Install Dependencies
@@ -112,7 +112,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Project Structure
 
 ```
-PinballStats/
+MyPinballStats/
 ├── app/
 │   ├── api/                    # Next.js API routes
 │   │   ├── ifpa/me/           # IFPA player data endpoint
@@ -255,11 +255,11 @@ git init
 git add .
 
 # Create initial commit
-git commit -m "Initial commit: Pinball stats dashboard"
+git commit -m "Initial commit: My Pinball Stats"
 
 # Create a new repository on GitHub (via web interface)
 # Then connect and push:
-git remote add origin https://github.com/YOUR_USERNAME/PinballStats.git
+git remote add origin https://github.com/YOUR_USERNAME/MyPinballStats.git
 git branch -M main
 git push -u origin main
 ```
@@ -270,10 +270,10 @@ git push -u origin main
 # Initialize and add files
 git init
 git add .
-git commit -m "Initial commit: Pinball stats dashboard"
+git commit -m "Initial commit: My Pinball Stats"
 
 # Create GitHub repo and push (requires GitHub CLI)
-gh repo create PinballStats --public --source=. --remote=origin
+gh repo create MyPinballStats --public --source=. --remote=origin
 git push -u origin main
 ```
 

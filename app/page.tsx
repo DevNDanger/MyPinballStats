@@ -119,7 +119,7 @@ export default function DashboardPage() {
           {/* Header */}
           <div className="mb-10 text-center">
             <h1 className="st-title text-3xl sm:text-4xl mb-3">
-              Jason&apos;s Pinball<br />Fucking DASHBOARD!!
+              My Pinball Stats
             </h1>
             <p className="text-[var(--st-muted)] text-xs tracking-widest uppercase">
               {data?.lastUpdated

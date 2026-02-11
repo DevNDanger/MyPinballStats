@@ -1,11 +1,11 @@
-# Contributing to Pinball Stats Dashboard
+# Contributing to My Pinball Stats
 
 Thank you for your interest in contributing to this project! This document provides guidelines for contributing.
 
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/PinballStats.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/MyPinballStats.git`
 3. Create a new branch: `git checkout -b feature/your-feature-name`
 4. Make your changes
 5. Commit with clear messages: `git commit -m "Add: feature description"`

@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: "Jason's Pinball Fucking DASHBOARD!!",
-  description: 'Personal pinball statistics from IFPA and Match Play',
+  title: 'My Pinball Stats',
+  description: 'Personal pinball statistics from IFPA, Match Play, and Stern Insider Connected',
 }
 
 export default function RootLayout({
