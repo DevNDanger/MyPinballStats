@@ -200,6 +200,7 @@ export interface DashboardData {
   } | null;
   recentOpponents?: RecentOpponent[];
   recentOpponentsError?: string;
+  nameMismatchWarning?: string;
   lastUpdated: string;
 }
 

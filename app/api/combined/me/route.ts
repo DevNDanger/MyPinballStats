@@ -99,13 +99,24 @@ export async function GET(request: NextRequest) {
     }
 
     // Combine identity information
+    const ifpaName = ifpaData.status === 'fulfilled'
+      ? `${ifpaData.value.player.first_name} ${ifpaData.value.player.last_name}`.trim()
+      : null;
+    const matchPlayName = matchPlayData.status === 'fulfilled'
+      ? matchPlayData.value.user.name?.trim() ?? null
+      : null;
+
+    // Detect name mismatch when both providers returned data
+    let nameMismatchWarning: string | undefined;
+    if (ifpaName && matchPlayName) {
+      const normalize = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '');
+      if (normalize(ifpaName) !== normalize(matchPlayName)) {
+        nameMismatchWarning = `IFPA name "${ifpaName}" does not match Match Play name "${matchPlayName}". Make sure both IDs belong to the same player.`;
+      }
+    }
+
     const identity = {
-      name:
-        ifpaData.status === 'fulfilled'
-          ? `${ifpaData.value.player.first_name} ${ifpaData.value.player.last_name}`
-          : matchPlayData.status === 'fulfilled'
-          ? matchPlayData.value.user.name
-          : 'Unknown Player',
+      name: ifpaName ?? matchPlayName ?? 'Unknown Player',
       location:
         ifpaData.status === 'fulfilled'
           ? [ifpaData.value.player.city, ifpaData.value.player.stateprov]
@@ -137,6 +148,7 @@ export async function GET(request: NextRequest) {
       matchplay: matchPlayResult,
       recentOpponents,
       recentOpponentsError: opponentsError,
+      nameMismatchWarning,
       lastUpdated: new Date().toISOString(),
     };
 
