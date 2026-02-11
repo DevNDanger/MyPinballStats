@@ -115,12 +115,24 @@ export async function GET(request: NextRequest) {
       matchplay_id: matchPlayUserId,
     };
 
+    // Process opponents data — log errors for debugging
+    let recentOpponents: DashboardData['recentOpponents'] = [];
+    let opponentsError: string | undefined;
+    if (opponentsData.status === 'fulfilled') {
+      recentOpponents = opponentsData.value;
+    } else {
+      const reason = opponentsData.reason;
+      opponentsError =
+        reason instanceof Error ? reason.message : String(reason);
+      console.error('Recent opponents fetch failed:', opponentsError);
+    }
+
     const dashboardData: DashboardData = {
       identity,
       ifpa: ifpaResult,
       matchplay: matchPlayResult,
-      recentOpponents:
-        opponentsData.status === 'fulfilled' ? opponentsData.value : [],
+      recentOpponents,
+      recentOpponentsError: opponentsError,
       lastUpdated: new Date().toISOString(),
     };
 

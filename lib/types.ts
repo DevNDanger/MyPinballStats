@@ -199,6 +199,7 @@ export interface DashboardData {
     tournamentPlayCount?: number;
   } | null;
   recentOpponents?: RecentOpponent[];
+  recentOpponentsError?: string;
   lastUpdated: string;
 }
 

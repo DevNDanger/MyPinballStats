@@ -299,7 +299,7 @@ export default function DashboardPage() {
             <Card
               title="Recent Opponents (Match Play)"
               isLoading={isLoading}
-              error={!data?.recentOpponents ? 'Match Play data unavailable' : undefined}
+              error={!data?.recentOpponents ? 'Match Play data unavailable' : data?.recentOpponentsError ? data.recentOpponentsError : undefined}
             >
               {data?.recentOpponents && (
                 <div>
