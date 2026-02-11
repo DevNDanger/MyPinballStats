@@ -21,7 +21,7 @@ import {
 const MATCHPLAY_API_BASE = 'https://app.matchplay.events/api';
 
 function getApiToken(): string {
-  const token = process.env.MATCHPLAY_API_TOKEN;
+  const token = process.env.MATCHPLAY_API_TOKEN?.trim();
   if (!token) throw new Error('Missing MATCHPLAY_API_TOKEN environment variable');
   return token;
 }
