@@ -2,6 +2,7 @@
   "name": "my-pinball-stats",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://www.mypinballstats.com",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
