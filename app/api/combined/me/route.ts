@@ -35,7 +35,7 @@ async function resolvePlayerIds(
     // User entered Match Play only — look up linked IFPA ID
     try {
       const profile = await getUserProfile(matchPlayId);
-      const linkedIfpaId = Number(profile.user.ifpaId);
+      const linkedIfpaId = Number(profile.user.ifpa_id);
       if (linkedIfpaId && !isNaN(linkedIfpaId)) {
         ifpaId = linkedIfpaId;
       }
@@ -137,17 +137,17 @@ export async function GET(request: NextRequest) {
     let matchPlayResult = null;
     if (matchPlayData.status === 'fulfilled') {
       const { rating, userCounts } = matchPlayData.value;
-      // Map ratingClass number to letter grade
+      // Map rating_class number to letter grade
       const gradeMap: Record<number, string> = { 1: 'A+', 2: 'A', 3: 'B', 4: 'C', 5: 'D' };
       matchPlayResult = {
         rating: rating?.rating,
-        ratingClass: rating?.ratingClass,
-        grade: rating?.ratingClass ? (gradeMap[rating.ratingClass] ?? `${rating.ratingClass}`) : undefined,
-        gameCount: rating?.gameCount,
-        winCount: rating?.winCount,
-        lossCount: rating?.lossCount,
-        efficiencyPercent: rating?.efficiencyPercent,
-        tournamentPlayCount: userCounts?.tournamentPlayCount,
+        ratingClass: rating?.rating_class,
+        grade: rating?.rating_class ? (gradeMap[rating.rating_class] ?? `${rating.rating_class}`) : undefined,
+        gameCount: rating?.game_count,
+        winCount: rating?.win_count,
+        lossCount: rating?.loss_count,
+        efficiencyPercent: rating?.efficiency_percent,
+        tournamentPlayCount: userCounts?.tournament_play_count,
       };
     }
 
