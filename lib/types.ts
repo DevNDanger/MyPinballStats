@@ -86,38 +86,38 @@ export interface IFPAPvpResponse {
 // ── Match Play Types (API at https://app.matchplay.events/api) ───────
 
 export interface MatchPlayUser {
-  userId: number;
+  user_id: number;
   name: string;
-  firstName?: string;
-  lastName?: string;
-  ifpaId?: number;
+  first_name?: string;
+  last_name?: string;
+  ifpa_id?: number;
   role?: string;
   flag?: string;
   location?: string;
   initials?: string;
   avatar?: string;
-  createdAt?: string;
+  created_at?: string;
 }
 
 export interface MatchPlayRating {
-  ratingId?: number;
-  userId?: number;
+  rating_id?: number;
+  user_id?: number;
   rating?: number;
-  ratingClass?: number;
+  rating_class?: number;
   rd?: number;
-  gameCount?: number;
-  winCount?: number;
-  lossCount?: number;
-  resultCount?: number;
-  efficiencyPercent?: number;
-  lowerBound?: number;
+  game_count?: number;
+  win_count?: number;
+  loss_count?: number;
+  result_count?: number;
+  efficiency_percent?: number;
+  lower_bound?: number;
 }
 
 export interface MatchPlayUserCounts {
-  tournamentOrganizedCount?: number;
-  seriesOrganizedCount?: number;
-  tournamentPlayCount?: number;
-  ratingPeriodCount?: number;
+  tournament_organized_count?: number;
+  series_organized_count?: number;
+  tournament_play_count?: number;
+  rating_period_count?: number;
 }
 
 /** Shape returned by GET /api/users/{id} */

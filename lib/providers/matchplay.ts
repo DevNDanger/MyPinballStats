@@ -16,7 +16,7 @@ import {
  *
  * The tournament & games endpoints **require** a Bearer token.
  *
- * Note: camelCase field names throughout.
+ * Note: API returns snake_case field names (e.g., user_id, rating_class, tournament_play_count).
  */
 const MATCHPLAY_API_BASE = 'https://app.matchplay.events/api';
 
@@ -79,27 +79,27 @@ interface MPTournamentListResponse {
 }
 
 interface MPTournament {
-  tournamentId: number;
+  tournament_id: number;
   name: string;
   status: string;
   type: string;
-  startUtc: string;
-  completedAt: string | null;
+  start_utc: string;
+  completed_at: string | null;
 }
 
 interface MPTournamentDetailResponse {
   data: {
-    tournamentId: number;
+    tournament_id: number;
     players?: MPTournamentPlayer[];
     [key: string]: unknown;
   };
 }
 
 interface MPTournamentPlayer {
-  playerId: number;
+  player_id: number;
   name: string;
-  claimedBy: number | null;
-  ifpaId?: number | null;
+  claimed_by: number | null;
+  ifpa_id?: number | null;
   status: string;
 }
 
@@ -108,15 +108,15 @@ interface MPGamesResponse {
 }
 
 interface MPGame {
-  gameId: number;
-  tournamentId: number;
+  game_id: number;
+  tournament_id: number;
   status: string;
   bye: boolean;
-  startedAt: string | null;
-  playerIds: number[];
-  userIds: (number | null)[];
-  resultPositions: number[];
-  resultPoints: (string | null)[];
+  started_at: string | null;
+  player_ids: number[];
+  user_ids: (number | null)[];
+  result_positions: number[];
+  result_points: (string | null)[];
 }
 
 /**
@@ -146,15 +146,15 @@ export async function getRecentOpponents(
     recentTourneys.map(async (t) => {
       const [detail, games] = await Promise.all([
         fetchMatchPlayAuth<MPTournamentDetailResponse>(
-          `/tournaments/${t.tournamentId}?includePlayers=1`
+          `/tournaments/${t.tournament_id}?includePlayers=1`
         ),
         fetchMatchPlayAuth<MPGamesResponse>(
-          `/tournaments/${t.tournamentId}/games`
+          `/tournaments/${t.tournament_id}/games`
         ),
       ]);
       return {
-        tournamentId: t.tournamentId,
-        startUtc: t.startUtc,
+        tournament_id: t.tournament_id,
+        start_utc: t.start_utc,
         players: detail.data.players ?? [],
         games: games.data ?? [],
       };
@@ -170,38 +170,38 @@ export async function getRecentOpponents(
 
   for (const result of tourneyData) {
     if (result.status !== 'fulfilled') continue;
-    const { players, games, startUtc } = result.value;
+    const { players, games, start_utc } = result.value;
 
     // Find our tournament-local player ID
-    const ourPlayer = players.find((p) => p.claimedBy === userId);
+    const ourPlayer = players.find((p) => p.claimed_by === userId);
     if (!ourPlayer) continue;
-    const ourPlayerId = ourPlayer.playerId;
+    const ourPlayerId = ourPlayer.player_id;
 
-    // Build playerId → name lookup
+    // Build player_id → name lookup
     const nameOf = new Map<number, string>();
-    for (const p of players) nameOf.set(p.playerId, p.name);
+    for (const p of players) nameOf.set(p.player_id, p.name);
 
     for (const game of games) {
       if (game.status !== 'completed' || game.bye) continue;
 
-      // playerIds and resultPositions are parallel arrays:
-      //   playerIds[i] finished in position resultPositions[i]
+      // player_ids and result_positions are parallel arrays:
+      //   player_ids[i] finished in position result_positions[i]
       //   (lower position number = higher finish, e.g. 1 = 1st place)
-      const ourIdx = game.playerIds.indexOf(ourPlayerId);
+      const ourIdx = game.player_ids.indexOf(ourPlayerId);
       if (ourIdx === -1) continue; // We weren't in this game
 
-      const ourPos = game.resultPositions[ourIdx];
+      const ourPos = game.result_positions[ourIdx];
       if (!ourPos) continue; // No result recorded
 
-      // Determine the game date (use game.startedAt if available, else tournament start)
-      const gameDate = game.startedAt || startUtc || '';
+      // Determine the game date (use game.started_at if available, else tournament start)
+      const gameDate = game.started_at || start_utc || '';
 
       // Compare our finishing position against every other player in the game
-      for (let i = 0; i < game.playerIds.length; i++) {
+      for (let i = 0; i < game.player_ids.length; i++) {
         if (i === ourIdx) continue;
-        const oppId = game.playerIds[i];
+        const oppId = game.player_ids[i];
         const oppName = nameOf.get(oppId) || `Player ${oppId}`;
-        const oppPos = game.resultPositions[i];
+        const oppPos = game.result_positions[i];
         if (!oppPos) continue; // No result for this opponent
 
         const rec = opponentMap.get(oppName) ?? {
