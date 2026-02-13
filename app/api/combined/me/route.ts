@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPlayerData, getPlayerProfile } from '@/lib/providers/ifpa';
+import { getPlayerData, getPlayerProfile, getPvpOpponentsTop10 } from '@/lib/providers/ifpa';
 import { getUserSummary, getUserProfile, getRecentOpponents } from '@/lib/providers/matchplay';
 import { cache, TTL, RATE_LIMIT } from '@/lib/cache';
 import { createApiResponse, createErrorResponse } from '@/lib/http';
@@ -109,16 +109,18 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch data only from providers whose IDs were resolved
-    const [ifpaData, matchPlayData, opponentsData] = await Promise.allSettled([
+    const [ifpaData, matchPlayData, opponentsData, pvpData] = await Promise.allSettled([
       ifpaPlayerId ? getPlayerData(ifpaPlayerId) : Promise.reject('No IFPA ID'),
       matchPlayUserId ? getUserSummary(matchPlayUserId) : Promise.reject('No Match Play ID'),
       matchPlayUserId ? getRecentOpponents(matchPlayUserId) : Promise.reject('No Match Play ID'),
+      ifpaPlayerId ? getPvpOpponentsTop10(ifpaPlayerId) : Promise.reject('No IFPA ID'),
     ]);
 
     // Process IFPA data
     let ifpaResult = null;
     if (ifpaData.status === 'fulfilled') {
       const { stats, stateRanking, eventsByYear } = ifpaData.value;
+      const pvpOpponents = pvpData.status === 'fulfilled' ? pvpData.value : [];
       ifpaResult = {
         rank: stats?.current_rank,
         wppr: stats?.current_points,
@@ -130,6 +132,7 @@ export async function GET(request: NextRequest) {
         totalEvents: stats?.total_events_all_time,
         stateRanking: stateRanking ?? null,
         eventsByYear: eventsByYear ?? [],
+        pvpOpponents,
       };
     }
 
@@ -138,16 +141,17 @@ export async function GET(request: NextRequest) {
     if (matchPlayData.status === 'fulfilled') {
       const { rating, userCounts } = matchPlayData.value;
       // Map ratingClass number to letter grade
+      // Note: ratingClass 1=A+, 2=A, 3=B, 4=C, 5=D (lower class number = higher skill)
       const gradeMap: Record<number, string> = { 1: 'A+', 2: 'A', 3: 'B', 4: 'C', 5: 'D' };
       matchPlayResult = {
         rating: rating?.rating,
         ratingClass: rating?.ratingClass,
-        grade: rating?.ratingClass ? (gradeMap[rating.ratingClass] ?? `${rating.ratingClass}`) : undefined,
+        grade: rating?.ratingClass ? (gradeMap[rating.ratingClass] ?? 'D') : undefined,
         gameCount: rating?.gameCount,
         winCount: rating?.winCount,
         lossCount: rating?.lossCount,
         efficiencyPercent: rating?.efficiencyPercent,
-        tournamentPlayCount: userCounts?.tournamentPlayCount,
+        tournamentPlayCount: userCounts?.tournamentPlayCount ?? 0,
       };
     }
 

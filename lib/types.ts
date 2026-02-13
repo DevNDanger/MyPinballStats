@@ -193,6 +193,7 @@ export interface DashboardData {
       year: string;
     } | null;
     eventsByYear?: EventsByYear[];
+    pvpOpponents?: PvpOpponentSummary[];
   } | null;
   matchplay: {
     rating?: number;

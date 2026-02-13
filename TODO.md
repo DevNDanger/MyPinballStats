@@ -4,7 +4,26 @@
 
 ---
 
-## 🔴 Priority 1 — Branding & Launch
+## � URGENT — Critical Bugs (Fix First!)
+
+### IFPA Section Issues
+- [x] **BUG-1.1** Rank data inconsistency — Current rank shows 5999, highest rank shows 6003, but actual rank is 6009. _(Note: Rank data comes from IFPA API cache - use Refresh Data button to update. Cache refreshes every 15 minutes)_
+- [ ] **BUG-1.2** State ranking (GA NACS) shows 57th with 2.07 state points — verify IFPA API data is current and cache is properly invalidated
+- [x] **BUG-1.3** Reorder IFPA stats — show "Events by [Current Year]" above "Total Events" for better UX _(COMPLETED - now highlights current year events)_
+
+### Match Play Section Issues
+- [x] **BUG-2.1** Letter grade incorrect — should show "C" but shows incorrect grade. _(FIXED - improved ratingClass mapping with proper fallback)_
+- [x] **BUG-2.2** Tournaments played shows 0 — `tournamentPlayCount` is not being populated correctly from Match Play API _(FIXED - added default value handling)_
+- [x] **BUG-2.3** **CRITICAL:** Games played vs W/L ratio mismatch — Shows 585 games but W/L is 511-556 (=1067 total). _(FIXED - clarified that "Tournament Games" = actual games, while W/L are head-to-head results within multiplayer games)_
+- [ ] **BUG-2.4** Recent opponents not refreshing after playing new matches — cache not invalidating properly or needs manual refresh _(Use Refresh Data button - cache is 15 min TTL)_
+
+### Enhancement Requests
+- [x] **ENH-1** Replace Match Play recent opponents with IFPA PvP stats — show overall head-to-head W/L ratios for each opponent _(COMPLETED - added new "Head-to-Head Stats (IFPA)" card)_
+- [ ] **ENH-2** Add new section/page for IFPA State Rankings — display top 100 players in user's state with their state points
+
+---
+
+## �🔴 Priority 1 — Branding & Launch
 
 - [x] **1.1** Rename the app to "My Pinball Stats" everywhere (package.json, layout.tsx title/meta, page.tsx header, README, repo name, etc.)
 - [x] **1.2** Rename the GitHub repository from `Pinball-Dash` → `MyPinballStats` (or similar)
@@ -107,4 +126,4 @@
 
 ---
 
-_Last updated: 2026-02-11_
+_Last updated: 2026-02-12_

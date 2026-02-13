@@ -266,7 +266,7 @@ export default function DashboardPage() {
                     <StatRow label="Last Year Rank" value={data.ifpa.lastYearRank} />
                   )}
                   {data.ifpa.highestRank != null && (
-                    <StatRow label="Highest Rank" value={data.ifpa.highestRank} />
+                    <StatRow label="Best Rank (All-Time)" value={data.ifpa.highestRank} />
                   )}
                   {data.ifpa.ratingsValue != null && (
                     <StatRow label="Rating" value={data.ifpa.ratingsValue.toFixed(2)} />
@@ -274,8 +274,24 @@ export default function DashboardPage() {
                   {data.ifpa.efficiencyValue != null && (
                     <StatRow label="Efficiency" value={`${data.ifpa.efficiencyValue.toFixed(1)}%`} />
                   )}
+                  
+                  {/* Current Year Events - Highlighted */}
+                  {data.ifpa.eventsByYear && data.ifpa.eventsByYear.length > 0 && (
+                    (() => {
+                      const currentYear = new Date().getFullYear().toString();
+                      const currentYearData = data.ifpa.eventsByYear.find(e => e.year === currentYear);
+                      return currentYearData ? (
+                        <StatRow 
+                          label={`Events in ${currentYear}`} 
+                          value={currentYearData.eventCount}
+                          highlight
+                        />
+                      ) : null;
+                    })()
+                  )}
+                  
                   {data.ifpa.totalEvents != null && (
-                    <StatRow label="Total Events" value={data.ifpa.totalEvents} />
+                    <StatRow label="Total Events (All-Time)" value={data.ifpa.totalEvents} />
                   )}
 
                   {/* State Ranking */}
@@ -350,27 +366,69 @@ export default function DashboardPage() {
                   {data.matchplay.rating != null && (
                     <StatRow label="Match Play Rating" value={data.matchplay.rating} highlight />
                   )}
-                  {data.matchplay.gameCount != null && (
-                    <StatRow label="Games Played" value={data.matchplay.gameCount} />
-                  )}
-                  {data.matchplay.winCount != null &&
-                    data.matchplay.lossCount != null && (
-                      <StatRow
-                        label="Record (W–L)"
-                        value={`${data.matchplay.winCount}–${data.matchplay.lossCount}`}
-                      />
-                    )}
-                  {data.matchplay.efficiencyPercent != null && (
-                    <StatRow
-                      label="Win Rate"
-                      value={`${(data.matchplay.efficiencyPercent * 100).toFixed(1)}%`}
-                    />
-                  )}
                   {data.matchplay.tournamentPlayCount != null && (
                     <StatRow
                       label="Tournaments Played"
                       value={data.matchplay.tournamentPlayCount}
                     />
+                  )}
+                  {data.matchplay.gameCount != null && (
+                    <StatRow label="Tournament Games" value={data.matchplay.gameCount} />
+                  )}
+                  {data.matchplay.winCount != null &&
+                    data.matchplay.lossCount != null && (
+                      <StatRow
+                        label="Head-to-Head Record (W–L)"
+                        value={`${data.matchplay.winCount}–${data.matchplay.lossCount}`}
+                      />
+                    )}
+                  {data.matchplay.efficiencyPercent != null && (
+                    <StatRow
+                      label="Head-to-Head Win%"
+                      value={`${(data.matchplay.efficiencyPercent * 100).toFixed(1)}%`}
+                    />
+                  )}
+                </div>
+              )}
+            </Card>
+
+            {/* IFPA PvP Opponents Card */}
+            <Card
+              title="Head-to-Head Stats (IFPA)"
+              isLoading={isLoading}
+              error={data?.ifpa === null ? 'IFPA data unavailable' : undefined}
+            >
+              {data?.ifpa?.pvpOpponents && (
+                <div>
+                  <div className="text-xs text-[var(--st-muted)] mb-3 tracking-wider">
+                    Overall career head-to-head records vs your top opponents (by total games).
+                  </div>
+
+                  {data.ifpa.pvpOpponents.length > 0 ? (
+                    <table className="st-year-table">
+                      <thead>
+                        <tr>
+                          <th>Opponent</th>
+                          <th>W–L–T</th>
+                          <th>Win%</th>
+                          <th>Games</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.ifpa.pvpOpponents.map((o) => (
+                          <tr key={o.playerId}>
+                            <td className="font-bold text-[var(--st-orange)]">{o.name}</td>
+                            <td>{`${o.wins}–${o.losses}–${o.ties}`}</td>
+                            <td>{formatPercent(o.winRate)}</td>
+                            <td>{o.totalGames}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="text-sm text-[var(--st-muted)]">
+                      No head-to-head data available.
+                    </div>
                   )}
                 </div>
               )}
